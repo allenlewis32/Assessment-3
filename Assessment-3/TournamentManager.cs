@@ -9,6 +9,9 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
+            Console.WriteLine(manager.AddTournament("A", "A"));
+            Console.WriteLine(manager.AddTournament("A", "A"));
+            Console.WriteLine(manager.AddTournament("B", "A"));
         }
         public TournamentManager()
         {
@@ -18,13 +21,31 @@ namespace Assessment_3
         public bool AddSport(string name)
         {
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = $"select count(*) from sports where name='{name}'";
-            if((int)command.ExecuteScalar() > 0)
+            command.CommandText = $"select count(*) from sports where name='{name}'"; // check whether the sport already exists
+            if ((int)command.ExecuteScalar() > 0)
             {
                 return false;
-            } else
+            }
+            else
             {
                 command.CommandText = $"insert into sports values('{name}')";
+                command.ExecuteNonQuery();
+                return true;
+            }
+        }
+        public bool AddTournament(string name, string sport)
+        {
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"select count(*) from tournament where name='{name}'"; // check whether the tournament already exists
+            if ((int)command.ExecuteScalar() > 0)
+            {
+                return false;
+            }
+            else
+            {
+                command.CommandText = $"select id from sports where name='{name}'";
+                int sportID = (int)command.ExecuteScalar();
+                command.CommandText = $"insert into tournament values('{name}', {sportID})";
                 command.ExecuteNonQuery();
                 return true;
             }
