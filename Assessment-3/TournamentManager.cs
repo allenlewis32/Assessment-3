@@ -9,9 +9,7 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            Console.WriteLine(manager.AddTournament("A", "A"));
-            Console.WriteLine(manager.AddTournament("A", "A"));
-            Console.WriteLine(manager.AddTournament("B", "A"));
+            manager.AddScoreBoard(1, 50);
         }
         public TournamentManager()
         {
@@ -49,6 +47,12 @@ namespace Assessment_3
                 command.ExecuteNonQuery();
                 return true;
             }
+        }
+        public void AddScoreBoard(int matchID, int score)
+        {
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"insert into scoreboard values({matchID}, {score})";
+            command.ExecuteNonQuery();
         }
     }
 }
