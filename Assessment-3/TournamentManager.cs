@@ -9,15 +9,17 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
+            manager.AddTournament();
         }
         public TournamentManager()
         {
             sqlConnection = new SqlConnection(connectionString);
             sqlConnection.Open();
         }
-        public bool AddSport(string sport)
+        public bool AddSport()
         {
             Console.Write("Enter the name of the sport: ");
+            string sport = Console.ReadLine()!;
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"select count(*) from sports where name='{sport}'"; // check whether the sport already exists
             if ((int)command.ExecuteScalar() > 0)
@@ -31,8 +33,10 @@ namespace Assessment_3
                 return true;
             }
         }
-        public bool AddTournament(string name, string sport)
+        public bool AddTournament()
         {
+            Console.Write("Enter the name of the tournament: ");
+            string name = Console.ReadLine()!;
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"select count(*) from tournament where name='{name}'"; // check whether the tournament already exists
             if ((int)command.ExecuteScalar() > 0)
@@ -41,12 +45,38 @@ namespace Assessment_3
             }
             else
             {
-                command.CommandText = $"select id from sports where name='{name}'";
-                int sportID = (int)command.ExecuteScalar();
+                int sportID = GetSportID();
                 command.CommandText = $"insert into tournament values('{name}', {sportID})";
                 command.ExecuteNonQuery();
                 return true;
             }
+        }
+        // Lists the available sports and returns the id of the sport chosen by the user
+        public int GetSportID()
+        {
+            Console.WriteLine("Available sports:");
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = "select * from sports";
+            List<int> sports = new();
+            int id;
+            using(SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    id = reader.GetInt32(0);
+                    string name = reader.GetString(1);
+                    sports.Add(id);
+                    Console.WriteLine($"{sports.Count}. {name}");
+                }
+            }
+            Console.WriteLine("Choose the sport you want: ");
+            int k = Convert.ToInt32(Console.ReadLine()!);
+            while(k < 1 || k > sports.Count)
+            {
+                Console.Write("Invalid Choice. Choose the sport you want: ");
+                k = Convert.ToInt32((Console.ReadLine()!));
+            }
+            return sports[k - 1];
         }
         public void AddScoreBoard(int matchID, int score)
         {
