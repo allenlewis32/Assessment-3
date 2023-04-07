@@ -9,7 +9,7 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.AddScoreBoard(1, 50);
+            manager.RemoveSports("A");
         }
         public TournamentManager()
         {
@@ -52,6 +52,12 @@ namespace Assessment_3
         {
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"insert into scoreboard values({matchID}, {score})";
+            command.ExecuteNonQuery();
+        }
+        public void RemoveSports(string sport)
+        {
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"delete from sports where name='{sport}'";
             command.ExecuteNonQuery();
         }
     }
