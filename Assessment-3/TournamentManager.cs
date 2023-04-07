@@ -10,7 +10,8 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.RemoveTournament();
+            manager.AddPlayer();
+            manager.RemovePlayer();
         }
         public TournamentManager()
         {
@@ -116,6 +117,14 @@ namespace Assessment_3
             int id = GetID("tournament", "tournament");
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from tournament where id={id}";
+            command.ExecuteNonQuery();
+        }
+        public void AddPlayer()
+        {
+            Console.Write("Enter the name of the player: ");
+            string name = Console.ReadLine()!;
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"insert into player values('{name}')";
             command.ExecuteNonQuery();
         }
     }
