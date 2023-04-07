@@ -10,7 +10,7 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.RemovePlayer();
+            manager.RemoveTournament();
         }
         public TournamentManager()
         {
@@ -69,7 +69,7 @@ namespace Assessment_3
                     Console.WriteLine($"{ids.Count}. {reader[1]}");
                 }
             }
-            Console.WriteLine($"Choose the {type} you want: ");
+            Console.Write($"Choose the {type} you want: ");
             int k = Convert.ToInt32(Console.ReadLine()!);
             while (k < 1 || k > ids.Count)
             {
@@ -109,6 +109,13 @@ namespace Assessment_3
             int id = GetID("player", "player");
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from player where id={id}";
+            command.ExecuteNonQuery();
+        }
+        public void RemoveTournament()
+        {
+            int id = GetID("tournament", "tournament");
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"delete from tournament where id={id}";
             command.ExecuteNonQuery();
         }
     }
