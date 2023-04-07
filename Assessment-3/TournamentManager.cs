@@ -10,7 +10,7 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.RegisterGroup();
+            manager.Payment();
         }
         public TournamentManager()
         {
@@ -53,11 +53,15 @@ namespace Assessment_3
             }
         }
         // Lists the available data from the database and returns the id chosen by the user
-        public int GetID(string databaseName, string type)
+        public int GetID(string databaseName, string type, string displayColumn = "*", string? where = null)
         {
             Console.WriteLine($"Available {type}:");
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = $"select * from {databaseName}";
+            command.CommandText = $"select {displayColumn} from {databaseName}";
+            if(where != null)
+            {
+                command.CommandText += $" where {where}";
+            }
             List<int> ids = new();
             int id;
             using (SqlDataReader reader = command.ExecuteReader())
@@ -155,6 +159,27 @@ namespace Assessment_3
             int tournamentID = GetID("tournament", "tournament");
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"insert into registeredSport values(0, {teamID}, {tournamentID}, 0)";
+            command.ExecuteNonQuery();
+        }
+        public void Payment()
+        {
+            Console.Write("Player or team(P/T)? ");
+            string choice = Console.ReadLine()!.ToUpper();
+            while(choice != "P" && choice != "T")
+            {
+                Console.Write("Invalid choice. Player or team(P/T)? ");
+                choice = Console.ReadLine()!.ToUpper();
+            }
+            int id;
+            if(choice == "P")
+            {
+                id = GetID("registeredSport", "player", "id, playerID", "playerID != 0");
+            } else
+            {
+                id = GetID("registeredSport", "team", "id, teamID", "teamID != 0");
+            }
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"update registeredSport set paid=1 where id={id}";
             command.ExecuteNonQuery();
         }
     }
