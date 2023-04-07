@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Globalization;
+using Microsoft.Data.SqlClient;
 
 namespace Assessment_3
 {
@@ -51,32 +52,35 @@ namespace Assessment_3
                 return true;
             }
         }
-        // Lists the available sports and returns the id of the sport chosen by the user
-        public int GetSportID()
+        // Lists the available data from the database and returns the id chosen by the user
+        public int GetID(string databaseName, string type)
         {
-            Console.WriteLine("Available sports:");
+            Console.WriteLine($"Available {type}:");
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = "select * from sports";
-            List<int> sports = new();
+            command.CommandText = $"select * from {databaseName}";
+            List<int> ids = new();
             int id;
-            using(SqlDataReader reader = command.ExecuteReader())
+            using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     id = reader.GetInt32(0);
-                    string name = reader.GetString(1);
-                    sports.Add(id);
-                    Console.WriteLine($"{sports.Count}. {name}");
+                    ids.Add(id);
+                    Console.WriteLine($"{ids.Count}. {reader[1]}");
                 }
             }
-            Console.WriteLine("Choose the sport you want: ");
+            Console.WriteLine($"Choose the {type} you want: ");
             int k = Convert.ToInt32(Console.ReadLine()!);
-            while(k < 1 || k > sports.Count)
+            while (k < 1 || k > ids.Count)
             {
-                Console.Write("Invalid Choice. Choose the sport you want: ");
+                Console.Write($"Invalid Choice. Choose the {type} you want: ");
                 k = Convert.ToInt32((Console.ReadLine()!));
             }
-            return sports[k - 1];
+            return ids[k - 1];
+        }
+        public int GetSportID()
+        {
+            return GetID("sports", "sport");
         }
         public void AddScoreBoard(int matchID, int score)
         {
@@ -93,31 +97,10 @@ namespace Assessment_3
         }
         public void EditScoreBoard()
         {
-            Console.WriteLine("Available scoreboard:");
-            SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = "select * from scoreboard";
-            List<int> scoreboard = new();
-            int id;
-            using (SqlDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    id = reader.GetInt32(0);
-                    scoreboard.Add(id);
-                    int matchID = reader.GetInt32(1);
-                    Console.WriteLine($"{scoreboard.Count}. {matchID}");
-                }
-            }
-            Console.WriteLine("Choose the scoreboard you want: ");
-            int k = Convert.ToInt32(Console.ReadLine()!);
-            while (k < 1 || k > scoreboard.Count)
-            {
-                Console.Write("Invalid Choice. Choose the scoreboard you want: ");
-                k = Convert.ToInt32((Console.ReadLine()!));
-            }
-            id = scoreboard[k - 1];
+            int id = GetID("scoreboard", "scoreboard");
             Console.Write("Enter the new score: ");
             int newScore = Convert.ToInt32(Console.ReadLine()!);
+            SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"update scoreboard set score={newScore} where id={id}";
             command.ExecuteNonQuery();
         }
