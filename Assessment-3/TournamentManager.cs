@@ -10,14 +10,67 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.Payment();
+            bool running = true;
+            while (running)
+            {
+                Console.Write("1. Add sport\n2. Add tournament\n3. Add scoreboard\n4. Remove sport\n5. Edit scoreboard\n6. Remove player\n7. Remove tournament\n8. Add player\n9. Add team\n10. Register individual\n11. Register team\n12. Pay fee\n13. View scoreboard\n0 to exit\nEnter your choice: ");
+                int choice = Convert.ToInt32(Console.ReadLine()!);
+                switch (choice)
+                {
+                    case 0:
+                        running = false;
+                        break;
+                    case 1:
+                        manager.AddSport();
+                        break;
+                    case 2:
+                        manager.AddTournament();
+                        break;
+                    case 3:
+                        manager.AddScoreBoard();
+                        break;
+                    case 4:
+                        manager.RemoveSports();
+                        break;
+                    case 5:
+                        manager.EditScoreBoard();
+                        break;
+                    case 6:
+                        manager.RemovePlayer();
+                        break;
+                    case 7:
+                        manager.RemoveTournament();
+                        break;
+                        case 8:
+                        manager.AddPlayer();
+                        break;
+                    case 9:
+                        manager.AddTeam();
+                        break;
+                    case 10:
+                        manager.RegisterIndividual();
+                        break;
+                    case 11:
+                        manager.RegisterGroup();
+                        break;
+                    case 12:
+                        manager.Payment();
+                        break;
+                    case 13:
+                        manager.ViewScoreBoard();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice");
+                        break;
+                }
+            }
         }
         public TournamentManager()
         {
             sqlConnection = new SqlConnection(connectionString);
             sqlConnection.Open();
         }
-        public bool AddSport()
+        public void AddSport()
         {
             Console.Write("Enter the name of the sport: ");
             string sport = Console.ReadLine()!;
@@ -25,16 +78,16 @@ namespace Assessment_3
             command.CommandText = $"select count(*) from sports where name='{sport}'"; // check whether the sport already exists
             if ((int)command.ExecuteScalar() > 0)
             {
-                return false;
+                Console.WriteLine("Sport already exists");
             }
             else
             {
                 command.CommandText = $"insert into sports values('{sport}')";
                 command.ExecuteNonQuery();
-                return true;
+                Console.WriteLine("Sport added");
             }
         }
-        public bool AddTournament()
+        public void AddTournament()
         {
             Console.Write("Enter the name of the tournament: ");
             string name = Console.ReadLine()!;
@@ -42,14 +95,14 @@ namespace Assessment_3
             command.CommandText = $"select count(*) from tournament where name='{name}'"; // check whether the tournament already exists
             if ((int)command.ExecuteScalar() > 0)
             {
-                return false;
+                Console.WriteLine("Tournament already exists");
             }
             else
             {
                 int sportID = GetSportID();
                 command.CommandText = $"insert into tournament values('{name}', {sportID})";
                 command.ExecuteNonQuery();
-                return true;
+                Console.WriteLine("Tournament added");
             }
         }
         // Lists the available data from the database and returns the id chosen by the user
@@ -58,7 +111,7 @@ namespace Assessment_3
             Console.WriteLine($"Available {type}:");
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"select {displayColumn} from {databaseName}";
-            if(where != null)
+            if (where != null)
             {
                 command.CommandText += $" where {where}";
             }
@@ -86,11 +139,13 @@ namespace Assessment_3
         {
             return GetID("sports", "sport");
         }
-        public void AddScoreBoard(int matchID, int score)
+        public void AddScoreBoard()
         {
+            int tournamentID = GetID("tournament", "tournament");
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = $"insert into scoreboard values({matchID}, {score})";
+            command.CommandText = $"insert into scoreboard values({tournamentID}, 0)";
             command.ExecuteNonQuery();
+            Console.WriteLine("Scoreboard added");
         }
         public void RemoveSports()
         {
@@ -98,6 +153,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from sports where id={sportID}";
             command.ExecuteNonQuery();
+            Console.WriteLine("Sport deleted");
         }
         public void EditScoreBoard()
         {
@@ -107,6 +163,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"update scoreboard set score={newScore} where id={id}";
             command.ExecuteNonQuery();
+            Console.WriteLine("Sport edited");
         }
         public void RemovePlayer()
         {
@@ -114,6 +171,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from player where id={id}";
             command.ExecuteNonQuery();
+            Console.WriteLine("Player removed");
         }
         public void RemoveTournament()
         {
@@ -121,6 +179,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from tournament where id={id}";
             command.ExecuteNonQuery();
+            Console.WriteLine("Tournament remove");
         }
         public void AddPlayer()
         {
@@ -129,6 +188,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"insert into player values('{name}')";
             command.ExecuteNonQuery();
+            Console.WriteLine("Player added");
         }
         public void RegisterIndividual()
         {
@@ -137,6 +197,7 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"insert into registeredSport values({playerID}, 0, {tournamentID}, 0)";
             command.ExecuteNonQuery();
+            Console.WriteLine("Registered");
         }
         public void AddTeam()
         {
@@ -152,6 +213,7 @@ namespace Assessment_3
                 command.CommandText = $"set identity_insert team on;insert into team(id, playerID) values({teamID}, {playerID})";
                 command.ExecuteNonQuery();
             }
+            Console.WriteLine("Team added");
         }
         public void RegisterGroup()
         {
@@ -160,27 +222,46 @@ namespace Assessment_3
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"insert into registeredSport values(0, {teamID}, {tournamentID}, 0)";
             command.ExecuteNonQuery();
+            Console.WriteLine("Registered");
         }
         public void Payment()
         {
             Console.Write("Player or team(P/T)? ");
             string choice = Console.ReadLine()!.ToUpper();
-            while(choice != "P" && choice != "T")
+            while (choice != "P" && choice != "T")
             {
                 Console.Write("Invalid choice. Player or team(P/T)? ");
                 choice = Console.ReadLine()!.ToUpper();
             }
             int id;
-            if(choice == "P")
+            if (choice == "P")
             {
                 id = GetID("registeredSport", "player", "id, playerID", "playerID != 0");
-            } else
+            }
+            else
             {
                 id = GetID("registeredSport", "team", "id, teamID", "teamID != 0");
             }
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"update registeredSport set paid=1 where id={id}";
             command.ExecuteNonQuery();
+            Console.WriteLine("Payment done");
+        }
+        public void ViewScoreBoard()
+        {
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = "select * from scoreboard";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    for(int i = 0; i < reader.FieldCount; i++)
+                    {
+                        Console.Write(reader[i].ToString() + " ");
+                    }
+                    Console.WriteLine();
+                }
+            }
         }
     }
 }
