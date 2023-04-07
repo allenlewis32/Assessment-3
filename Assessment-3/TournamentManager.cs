@@ -84,10 +84,11 @@ namespace Assessment_3
             command.CommandText = $"insert into scoreboard values({matchID}, {score})";
             command.ExecuteNonQuery();
         }
-        public void RemoveSports(string sport)
+        public void RemoveSports()
         {
+            int sportID = GetSportID();
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = $"delete from sports where name='{sport}'";
+            command.CommandText = $"delete from sports where id={sportID}";
             command.ExecuteNonQuery();
         }
     }
