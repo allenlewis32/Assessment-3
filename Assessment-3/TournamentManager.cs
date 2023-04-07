@@ -15,5 +15,19 @@ namespace Assessment_3
             sqlConnection = new SqlConnection(connectionString);
             sqlConnection.Open();
         }
+        public bool AddSport(string name)
+        {
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = $"select count(*) from sports where name='{name}'";
+            if((int)command.ExecuteScalar() > 0)
+            {
+                return false;
+            } else
+            {
+                command.CommandText = $"insert into sports values('{name}')";
+                command.ExecuteNonQuery();
+                return true;
+            }
+        }
     }
 }
