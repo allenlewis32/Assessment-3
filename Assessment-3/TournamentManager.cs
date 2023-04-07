@@ -9,7 +9,7 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.AddTournament();
+            manager.EditScoreBoard();
         }
         public TournamentManager()
         {
@@ -89,6 +89,36 @@ namespace Assessment_3
             int sportID = GetSportID();
             SqlCommand command = sqlConnection.CreateCommand();
             command.CommandText = $"delete from sports where id={sportID}";
+            command.ExecuteNonQuery();
+        }
+        public void EditScoreBoard()
+        {
+            Console.WriteLine("Available scoreboard:");
+            SqlCommand command = sqlConnection.CreateCommand();
+            command.CommandText = "select * from scoreboard";
+            List<int> scoreboard = new();
+            int id;
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    id = reader.GetInt32(0);
+                    scoreboard.Add(id);
+                    int matchID = reader.GetInt32(1);
+                    Console.WriteLine($"{scoreboard.Count}. {matchID}");
+                }
+            }
+            Console.WriteLine("Choose the scoreboard you want: ");
+            int k = Convert.ToInt32(Console.ReadLine()!);
+            while (k < 1 || k > scoreboard.Count)
+            {
+                Console.Write("Invalid Choice. Choose the scoreboard you want: ");
+                k = Convert.ToInt32((Console.ReadLine()!));
+            }
+            id = scoreboard[k - 1];
+            Console.Write("Enter the new score: ");
+            int newScore = Convert.ToInt32(Console.ReadLine()!);
+            command.CommandText = $"update scoreboard set score={newScore} where id={id}";
             command.ExecuteNonQuery();
         }
     }
