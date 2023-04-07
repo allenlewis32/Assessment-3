@@ -9,24 +9,24 @@ namespace Assessment_3
         static void Main(string[] args)
         {
             TournamentManager manager = new();
-            manager.RemoveSports("A");
         }
         public TournamentManager()
         {
             sqlConnection = new SqlConnection(connectionString);
             sqlConnection.Open();
         }
-        public bool AddSport(string name)
+        public bool AddSport(string sport)
         {
+            Console.Write("Enter the name of the sport: ");
             SqlCommand command = sqlConnection.CreateCommand();
-            command.CommandText = $"select count(*) from sports where name='{name}'"; // check whether the sport already exists
+            command.CommandText = $"select count(*) from sports where name='{sport}'"; // check whether the sport already exists
             if ((int)command.ExecuteScalar() > 0)
             {
                 return false;
             }
             else
             {
-                command.CommandText = $"insert into sports values('{name}')";
+                command.CommandText = $"insert into sports values('{sport}')";
                 command.ExecuteNonQuery();
                 return true;
             }
